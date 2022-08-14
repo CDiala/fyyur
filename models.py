@@ -64,4 +64,4 @@ class Show(db.Model):
     start_time = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self):
-        return f'<Show ID:{self.id} Venue_ID:{self.venue_id} Artist_ID:{self.artist_id}, Show_start_time:{self.show_start_time}>'
+        return f'<Show ID:{self.id} Venue_ID:{self.venue_id} Artist_ID:{self.artist_id}, Show_start_time:{self.start_time}>'
