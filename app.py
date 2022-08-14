@@ -3,6 +3,7 @@
 #----------------------------------------------------------------------------#
 
 import json
+import sys
 import dateutil.parser
 import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
@@ -201,15 +202,38 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-    # TODO: insert form data as a new Venue record in the db, instead
-    # TODO: modify data to be the data object returned from db insertion
 
-    # on successful db insert, flash success
-    flash('Venue ' + request.form['name'] + ' was successfully listed!')
-    # TODO: on unsuccessful db insert, flash an error instead.
-    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-    return render_template('pages/home.html')
+    venue_form = VenueForm(request.form)
+
+    if (venue_form.validate()):
+        try:
+            new_venue = Venue(
+                name=venue_form.name.data,
+                city=venue_form.city.data,
+                state=venue_form.state.data,
+                address=venue_form.address.data,
+                phone=venue_form.phone.data,
+                image_link=venue_form.image_link.data,
+                genres=",".join(venue_form.genres.data),
+                facebook_link=venue_form.facebook_link.data,
+                website_link=venue_form.website_link.data,
+                seeking_talent=venue_form.seeking_talent.data,
+                seeking_description=venue_form.seeking_description.data
+            )
+
+            db.session.add(new_venue)
+            db.session.commit()
+            flash('Venue ' + request.form['name'] +
+                  ' was successfully listed!')
+        except:
+            db.session.rollback()
+            flash('An error occurred. Venue ' +
+                  request.form['name'] + ' could not be listed.\n' + sys.exc_info())
+        finally:
+            db.session.close()
+            return redirect(url_for('index'))
+    else:
+        flash('An error occurred. Check form inputs and try again.')
 
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
@@ -511,11 +535,5 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run()
-
-# Or specify port manually:
-'''
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-'''
+    app.debug = True
+    app.run(host='0.0.0.0', port=3000)
