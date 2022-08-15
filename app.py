@@ -65,28 +65,36 @@ def index():
 def venues():
     # TODO: replace with real venues data.
     #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
-    data = [{
-        "city": "San Francisco",
-        "state": "CA",
-        "venues": [{
-            "id": 1,
-            "name": "The Musical Hop",
-            "num_upcoming_shows": 0,
-        }, {
-            "id": 3,
-            "name": "Park Square Live Music & Coffee",
-            "num_upcoming_shows": 1,
-        }]
-    }, {
-        "city": "New York",
-        "state": "NY",
-        "venues": [{
-            "id": 2,
-            "name": "The Dueling Pianos Bar",
-            "num_upcoming_shows": 0,
-        }]
-    }]
-    return render_template('pages/venues.html', areas=data)
+
+    venue_list = []
+
+    # get all venues records
+    venues = Venue.query.group_by(Venue.city, Venue.state, Venue.id).order_by(
+        Venue.city, Venue.state, Venue.id).all()
+
+    for venue in venues:
+
+        venue_item = {
+            "city": venue.city,
+            "state": venue.state,
+            "venues": [
+                {
+                    "id": venue.id,
+                    "name": venue.name,
+                    "num_upcoming_shows": 0,
+                }
+            ]
+        }
+
+        # append venues if city already exists in venue_list.
+        # Otherwise, add venue_item to venue list
+        if len(venue_list) and venue_list[len(venue_list) - 1]['city'] == venue_item["city"]:
+            venue_list[len(venue_list) -
+                       1]['venues'].append(venue_item["venues"][0])
+        else:
+            venue_list.append(venue_item)
+
+    return render_template('pages/venues.html', areas=venue_list)
 
 
 @app.route('/venues/search', methods=['POST'])
@@ -94,6 +102,7 @@ def search_venues():
     # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
     # seach for Hop should return "The Musical Hop".
     # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
+
     response = {
         "count": 1,
         "data": [{

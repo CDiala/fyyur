@@ -29,7 +29,7 @@ class Venue(db.Model):
                             lazy=False, cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Venue ID:{self.id}, Name:{self.name}>'
+        return f'<Venue ID:{self.id}, Name:{self.name}, City:{self.city}, State:{self.state}>'
 
 
 class Artist(db.Model):
