@@ -29,7 +29,7 @@ class Venue(db.Model):
                             lazy=False, cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Venue ID:{self.id}, Name:{self.name}, City:{self.city}, State:{self.state}>'
+        return f'<Venue ID:{self.id}, Name:{self.name}, City:{self.city}, State:{self.state}, Address:{self.address}, Phone:{self.phone}, Image:{self.image_link}, Genres:{self.genres}, Facebook:{self.facebook_link}, Website:{self.website_link}, Talent_Needed:{self.seeking_talent}, Talent_description:{self.seeking_description}>'
 
 
 class Artist(db.Model):
@@ -64,4 +64,4 @@ class Show(db.Model):
     start_time = db.Column(db.DateTime, nullable=False)
 
     def __repr__(self):
-        return f'<Show ID:{self.id} Venue_ID:{self.venue_id} Artist_ID:{self.artist_id}, Show_start_time:{self.start_time}>'
+        return f'<Show ID:{self.id} Venue_ID:{self.venue_id} Artist_ID:{self.artist_id}, start_time:{self.start_time}>'
