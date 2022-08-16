@@ -29,7 +29,13 @@ class Venue(db.Model):
                             lazy=False, cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Venue ID:{self.id}, Name:{self.name}, City:{self.city}, State:{self.state}, Address:{self.address}, Phone:{self.phone}, Image:{self.image_link}, Genres:{self.genres}, Facebook:{self.facebook_link}, Website:{self.website_link}, Talent_Needed:{self.seeking_talent}, Talent_description:{self.seeking_description}>'
+        return f'<Venue ID:{self.id}, Name:{self.name}, \
+            City:{self.city}, State:{self.state}, \
+                Address:{self.address}, Phone:{self.phone}, \
+                    Image:{self.image_link}, Genres:{self.genres}, \
+                        Facebook:{self.facebook_link}, Website:{self.website_link}, \
+                            Talent_Needed:{self.seeking_talent}, \
+                                Talent_description:{self.seeking_description}>'
 
 
 class Artist(db.Model):
@@ -41,8 +47,8 @@ class Artist(db.Model):
     phone = db.Column(db.String(120), nullable=False)
     image_link = db.Column(db.String(500), nullable=False)
     genres = db.Column(db.String(), nullable=False)
-    facebook_link = db.Column(db.String(120), nullable=False)
-    website_link = db.Column(db.String(), nullable=False)
+    facebook_link = db.Column(db.String(120), nullable=True)
+    website_link = db.Column(db.String(), nullable=True)
     seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
     seeking_description = db.Column(db.String(), nullable=True)
     date_created = db.Column(
