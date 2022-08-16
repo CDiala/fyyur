@@ -86,9 +86,10 @@ def venues():
 def search_venues():
 
     user_input = request.form.get('search_term')
-    venue_result = db.session.query(Show).join(Venue, Show.venue_id == Venue.id).with_entities(
+    # outerjoin used so that venues with no event history will still be returned
+    venue_result = db.session.query(Venue).outerjoin(Show, Show.venue_id == Venue.id).with_entities(
         Venue.id, Venue.name, Show.start_time).filter(
-            Venue.name.ilike('%' + user_input + '%'), Show.start_time > datetime.now()).order_by(Venue.id).all()
+            Venue.name.ilike('%' + user_input + '%')).order_by(Venue.id).all()
 
     response = {
         "count": 0,
@@ -113,13 +114,13 @@ def search_venues():
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
-    venues = db.session.query(Show).join(Venue, Show.venue_id == Venue.id).join(
+    venues = db.session.query(Venue).outerjoin(Show, Show.venue_id == Venue.id).outerjoin(
         Artist, Artist.id == Show.artist_id).with_entities(
         Venue.id, Venue.name, Venue.genres, Venue.address, Venue.city,
         Venue.state, Venue.phone, Venue.website_link, Venue.facebook_link,
         Venue.seeking_talent, Venue.seeking_description, Venue.image_link,
         Artist.id, Artist.name, Artist.image_link, Show.start_time
-    ).filter(Show.venue_id == venue_id).order_by(Venue.id).all()
+    ).filter(Venue.id == venue_id).order_by(Venue.id).all()
 
     if venues:
 
@@ -132,12 +133,15 @@ def show_venue(venue_id):
                 "artist_id": venue[12],
                 "artist_name": venue[13],
                 "artist_image_link": venue[14],
-                "start_time": venue[15].strftime("%m/%d/%Y %H:%M:%S")
+                "start_time": ''
             }
-            if venue[15] <= datetime.now():
-                past_shows.append(temp_show)
-            else:
-                upcoming_shows.append(temp_show)
+
+            if venue[15]:
+                temp_show["start_time"] = venue[15].strftime("%m/%d/%Y %H:%M:%S")
+                if venue[15] <= datetime.now():
+                    past_shows.append(temp_show)
+                else:
+                    upcoming_shows.append(temp_show)
 
         new_data = {
             "id": venues[0][0],
@@ -246,7 +250,9 @@ def artists():
 def search_artists():
 
     user_input = request.form.get('search_term')
-    artist_result = db.session.query(Artist).join(Show, Show.artist_id == Artist.id).with_entities(Artist.id, Artist.name, Show.start_time).filter(Artist.name.ilike('%' + user_input + '%'), Show.start_time > datetime.now()).order_by(Artist.id).all()
+
+    # outerjoin used so that artists with no event history will still be returned
+    artist_result = db.session.query(Artist).outerjoin(Show, Show.artist_id == Artist.id).with_entities(Artist.id, Artist.name, Show.start_time).filter(Artist.name.ilike('%' + user_input + '%')).order_by(Artist.id).all()
 
     response = {
         "count": 0,
@@ -271,10 +277,10 @@ def search_artists():
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
 
-    artists = db.session.query(Show).join(Venue, Show.artist_id == Venue.id).join(Artist, Artist.id == Show.artist_id).with_entities(
+    artists = db.session.query(Artist).outerjoin(Show, Show.artist_id == Artist.id).outerjoin(Venue, Venue.id == Show.venue_id).with_entities(
         Artist.id, Artist.name, Artist.genres, Artist.city, Artist.state, Artist.phone, Artist.website_link, Artist.facebook_link,
         Artist.seeking_venue, Artist.seeking_description, Artist.image_link, Venue.id, Venue.name, Venue.image_link, Show.start_time
-    ).filter(Show.artist_id == artist_id).order_by(Artist.id).all()
+    ).filter(Artist.id == artist_id).order_by(Artist.id).all()
 
     if artists:
         # sort shows into past & upcoming
@@ -286,12 +292,15 @@ def show_artist(artist_id):
                 "venue_id": artist[11],
                 "venue_name": artist[12],
                 "venue_image_link": artist[13],
-                "start_time": artist[14].strftime("%m/%d/%Y %H:%M:%S")
+                "start_time": ''
             }
-            if artist[14] <= datetime.now():
-                past_shows.append(temp_show)
-            else:
-                upcoming_shows.append(temp_show)
+
+            if artist[14]:
+                temp_show["start_time"] = artist[14].strftime("%m/%d/%Y %H:%M:%S")
+                if artist[14] <= datetime.now():
+                    past_shows.append(temp_show)
+                else:
+                    upcoming_shows.append(temp_show)
         
         new_data = {
             "id": artists[0][0],
