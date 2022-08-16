@@ -29,7 +29,13 @@ class Venue(db.Model):
                             lazy=False, cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Venue ID:{self.id}, Name:{self.name}, City:{self.city}, State:{self.state}, Address:{self.address}, Phone:{self.phone}, Image:{self.image_link}, Genres:{self.genres}, Facebook:{self.facebook_link}, Website:{self.website_link}, Talent_Needed:{self.seeking_talent}, Talent_description:{self.seeking_description}>'
+        return f'<Venue ID:{self.id}, Name:{self.name}, \
+            City:{self.city}, State:{self.state}, \
+                Address:{self.address}, Phone:{self.phone}, \
+                    Image:{self.image_link}, Genres:{self.genres}, \
+                        Facebook:{self.facebook_link}, Website:{self.website_link}, \
+                            Talent_Needed:{self.seeking_talent}, \
+                                Talent_description:{self.seeking_description}>'
 
 
 class Artist(db.Model):
