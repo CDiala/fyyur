@@ -103,14 +103,27 @@ def search_venues():
     # seach for Hop should return "The Musical Hop".
     # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
 
+    user_input = request.form.get('search_term')
+
+    venue_result = db.session.query(Show).join(Venue, Show.venue_id == Venue.id).with_entities(Venue.id, Venue.name, Show.start_time).filter(Venue.name.ilike('%' + user_input + '%'), Show.start_time > datetime.now()).order_by(Venue.id).all()
+
     response = {
-        "count": 1,
-        "data": [{
-            "id": 2,
-            "name": "The Dueling Pianos Bar",
-            "num_upcoming_shows": 0,
-        }]
+        "count": 0,
+        "data": []
     }
+
+    for venue in venue_result:
+        if (response["data"] and response["data"][len(response["data"]) - 1]["id"] == venue.id):
+            response["data"][len(response["data"]) - 1]["num_upcoming_shows"] += 1
+        else:
+            data_item = {
+                "id": venue.id,
+                "name": venue.name,
+                "num_upcoming_shows": 1,
+            }
+            response["count"] += 1
+            response["data"].append(data_item)
+    
     return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 
@@ -372,7 +385,7 @@ def edit_artist_submission(artist_id):
 def edit_venue(venue_id):
 
     venue_detail = Venue.query.get(venue_id)
-    
+
     form = VenueForm()
 
     venue = {
