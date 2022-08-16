@@ -121,40 +121,44 @@ def show_venue(venue_id):
         Artist.id, Artist.name, Artist.image_link, Show.start_time
     ).filter(Show.venue_id == venue_id).order_by(Venue.id).all()
 
-    # sort shows into past & upcoming
-    past_shows= []
-    upcoming_shows= []
+    if venues:
 
-    for venue in venues:
-        temp_show = {
-            "artist_id": venue[12],
-            "artist_name": venue[13],
-            "artist_image_link": venue[14],
-            "start_time": venue[15].strftime("%m/%d/%Y %H:%M:%S")
+        # sort shows into past & upcoming
+        past_shows= []
+        upcoming_shows= []
+
+        for venue in venues:
+            temp_show = {
+                "artist_id": venue[12],
+                "artist_name": venue[13],
+                "artist_image_link": venue[14],
+                "start_time": venue[15].strftime("%m/%d/%Y %H:%M:%S")
+            }
+            if venue[15] <= datetime.now():
+                past_shows.append(temp_show)
+            else:
+                upcoming_shows.append(temp_show)
+
+        new_data = {
+            "id": venues[0][0],
+            "name": venues[0][1],
+            "genres": (venues[0][2]).split(","),
+            "address": venues[0][3],
+            "city": venues[0][4],
+            "state": venues[0][5],
+            "phone": venues[0][6],
+            "website": venues[0][7],
+            "facebook_link": venues[0][8],
+            "seeking_talent": venues[0][9],
+            "seeking_description": venues[0][10],
+            "image_link": venues[0][11],
+            "past_shows": past_shows,
+            "upcoming_shows": upcoming_shows,
+            "past_shows_count": len(past_shows),
+            "upcoming_shows_count": len(upcoming_shows),
         }
-        if venue[15] <= datetime.now():
-            past_shows.append(temp_show)
-        else:
-            upcoming_shows.append(temp_show)
-
-    new_data = {
-        "id": venues[0][0],
-        "name": venues[0][1],
-        "genres": (venues[0][2]).split(","),
-        "address": venues[0][3],
-        "city": venues[0][4],
-        "state": venues[0][5],
-        "phone": venues[0][6],
-        "website": venues[0][7],
-        "facebook_link": venues[0][8],
-        "seeking_talent": venues[0][9],
-        "seeking_description": venues[0][10],
-        "image_link": venues[0][11],
-        "past_shows": past_shows,
-        "upcoming_shows": upcoming_shows,
-        "past_shows_count": len(past_shows),
-        "upcoming_shows_count": len(upcoming_shows),
-    }
+    else:
+        new_data = {}
 
     return render_template('pages/show_venue.html', venue=new_data)
 
